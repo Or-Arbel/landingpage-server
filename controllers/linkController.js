@@ -37,11 +37,10 @@ exports.getLink = catchAsync(async (req, res, next) => {
 });
 
 exports.createLinks = catchAsync(async (req, res, next) => {
-  const data = await Links.bulkCreate(req.body, { validate: true });
+  const data = await Links.create(req.body, { validate: true });
 
   res.status(201).json({
     status: 'success',
-    results: data.length,
     data,
     message: 'הלינק נוסף בהצלחה'
   });

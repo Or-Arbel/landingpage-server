@@ -12,6 +12,7 @@ module.exports = sequelize.define(
         notNull: { msg: 'מחלקה חייבת להכיל מספר סידור - order' }
       }
     },
+
     name: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -24,6 +25,14 @@ module.exports = sequelize.define(
       },
       set(name) {
         this.setDataValue('name', name.trim());
+      }
+    },
+
+    image: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      set(image) {
+        this.setDataValue('image', image ?? null);
       }
     }
   }

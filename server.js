@@ -13,7 +13,7 @@ const { SQL_HOST, SQL_PORT, SQL_USER, SQL_PASSWORD, SQL_DB, SQL_DIALECT } = proc
 
 const sequelize = new Sequelize(SQL_DB, SQL_USER, SQL_PASSWORD, {
   host: SQL_HOST,
-  port: SQL_PORT,
+  // port: SQL_PORT,
   dialect: SQL_DIALECT,
   pool: {
     max: 5,

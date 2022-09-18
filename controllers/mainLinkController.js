@@ -1,22 +1,24 @@
 const APIFeatures = require('../utils/apiFeatures');
-const ShobDevelopments = require('../models/shobDevelopmentModel');
+const MainLinks = require('../models/mainLinkModel');
 const SingleFile = require('../models/singleFileModel');
-
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
-const User = require('../models/userModel');
 
 const removeImage = require('../middlewares/removeImage');
 const uploadImage = require('../middlewares/uploadImage');
 
-exports.getAllShobDevelopments = catchAsync(async (req, res, next) => {
+exports.getAllMainLinks = catchAsync(async (req, res, next) => {
   const { query } = new APIFeatures(req.query)
     .filter()
     .order()
     .limitFields()
     .paginate();
 
-  const data = await ShobDevelopments.findAll(query);
+  const data = await MainLinks.findAll(query);
+
+  if (!data) {
+    return next(new AppError('An error has occurred, could not fetch data', 500));
+  }
 
   res.status(200).json({
     status: 'success',
@@ -25,11 +27,11 @@ exports.getAllShobDevelopments = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getShobDevelopment = catchAsync(async (req, res, next) => {
-  const data = await ShobDevelopments.findByPk(req.params.id);
+exports.getMainLink = catchAsync(async (req, res, next) => {
+  const data = await MainLinks.findByPk(req.params.id);
 
   if (!data) {
-    return next(new AppError('No shob development found with that ID', 404));
+    return next(new AppError(recordNotFoundMessage, 404));
   }
 
   res.status(200).json({
@@ -38,51 +40,53 @@ exports.getShobDevelopment = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.createShobDevelopment = catchAsync(async (req, res, next) => {
+exports.createMainLinks = catchAsync(async (req, res, next) => {
   try {
     let body = req.body;
 
     if (req.file) {
       body.image = await uploadImage(req.file);
     }
-
-    const data = await ShobDevelopments.create(body, { validate: true });
+    const data = await MainLinks.create(body, { validate: true });
 
     res.status(201).json({
       status: 'success',
       data,
-      message: 'פיתוח המעבדה נוסף בהצלחה'
+      message: 'הלינק נוסף בהצלחה'
     });
   } catch (error) {
     res.status(400).send(error.message);
   }
 });
 
-exports.updateShobDevelopment = catchAsync(async (req, res, next) => {
+exports.updateMainLink = catchAsync(async (req, res, next) => {
   try {
     let body = req.body;
-
     if (req.file) {
       body.image = await uploadImage(req.file);
     } else {
-      await removeImage(ShobDevelopments, req.params.id);
+      await removeImage(MainLinks, req.params.id);
     }
+    const data = await MainLinks.update(body, {
+      where: { id: +req.params.id },
+      validate: true,
+      returning: true
+    });
 
-    const data = await ShobDevelopments.update(body, { where: { id: req.params.id }, validate: true, returning: true });
     if (data[0] === 0) {
-      return next(new AppError('No shob development found with that ID', 404));
+      return next(new AppError(recordNotFoundMessage, 404));
     }
 
     res.status(200).json({
       status: 'success',
-      data: data[1][0]
+      data: data[1][0].dataValues
     });
   } catch (error) {
     res.status(400).send(error.message);
   }
 });
 
-exports.bulkUpdateShobDevelopment = catchAsync(async (req, res, next) => {
+exports.bulkUpdateMainLink = catchAsync(async (req, res, next) => {
   const { body } = req;
 
   const queries = [];
@@ -92,7 +96,7 @@ exports.bulkUpdateShobDevelopment = catchAsync(async (req, res, next) => {
     delete row.id;
 
     queries.push(
-      ShobDevelopments.update(row, {
+      MainLinks.update(row, {
         where: { id: req.body[i].id },
         validate: true,
         returning: true
@@ -121,18 +125,19 @@ exports.bulkUpdateShobDevelopment = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.deleteShobDevelopment = catchAsync(async (req, res, next) => {
-  // delete one OR many records: .../route/2065 OR .../route/[2065, 2066, 2067]
-  await removeImage(ShobDevelopments, req.params.id);
-  const shobDevelopment = await ShobDevelopments.destroy({ where: { id: JSON.parse(req.params.id) } });
+exports.deleteMainLink = catchAsync(async (req, res, next) => {
+  await removeImage(MainLinks, req.params.id);
 
-  if (!shobDevelopment) {
-    return next(new AppError('No shob development found with that ID', 404));
+  // delete one OR many records: .../route/2065 OR .../route/[2065, 2066, 2067]
+  const link = await MainLinks.destroy({ where: { id: JSON.parse(req.params.id) } });
+
+  if (!link) {
+    return next(new AppError(recordNotFoundMessage, 404));
   }
 
   res.status(202).json({
     status: 'success',
     data: null,
-    message: 'פיתוח המעבדה נמחק בהצלחה'
+    message: 'הלינק נמחק בהצלחה'
   });
 });

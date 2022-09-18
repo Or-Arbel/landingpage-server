@@ -2,21 +2,21 @@ const { DataTypes } = require('sequelize');
 const { sequelize } = require('../server');
 
 module.exports = sequelize.define(
-  'shobDevelopment', // model name
+  'selaLink', // model name
   {
     // fields:
     order: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
-        notNull: { msg: 'פיתוח חייב להכיל מספר סידור - order' }
+        notNull: { msg: 'לינק חייב להכיל מספר סידור - order' }
       }
     },
     title: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        notNull: { msg: 'פיתוח חייב להכיל כותרת' },
+        notNull: { msg: 'לינק חייב להכיל כותרת' },
         len: {
           args: [3, 40],
           msg: 'כותרת חייבת להכיל 3-40 תווים'
@@ -27,26 +27,11 @@ module.exports = sequelize.define(
       }
     },
 
-    subTitle: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notNull: { msg: 'פיתוח חייב להכיל כותרת משנה' },
-        len: {
-          args: [3, 150],
-          msg: 'כותרת משנה חייבת להכיל 3-150 תווים'
-        }
-      },
-      set(subTitle) {
-        this.setDataValue('subTitle', subTitle.trim());
-      }
-    },
-
     description: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        notNull: { msg: 'פיתוח חייב להכיל תיאור' },
+        notNull: { msg: 'לינק חייב להכיל תיאור' },
         len: {
           args: [3, 1500],
           msg: 'תיאור חייב להכיל 3-1500 תו וים'
@@ -62,7 +47,7 @@ module.exports = sequelize.define(
       allowNull: false,
       isUrl: true,
       validate: {
-        notNull: { msg: 'פיתוח חייב להכיל url' },
+        notNull: { msg: 'לינק חייב להכיל url' },
         isUrl: { args: [true], msg: 'לינק לא תקין' }
       },
       set(url) {

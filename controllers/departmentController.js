@@ -1,8 +1,15 @@
 const APIFeatures = require('../utils/apiFeatures');
 const Department = require('../models/departmentModel');
 const DepartmentLinks = require('../models/departmentLinkModel');
+const SingleFile = require('../models/singleFileModel');
+
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+
+const removeImage = require('../middlewares/removeImage');
+const uploadImage = require('../middlewares/uploadImage');
+
+const path = require('path');
 
 exports.getAllDepartments = catchAsync(async (req, res, next) => {
   let { query } = new APIFeatures(req.query)
@@ -41,34 +48,54 @@ exports.getDepartment = catchAsync(async (req, res, next) => {
 });
 
 exports.createDepartment = catchAsync(async (req, res, next) => {
-  const data = await Department.bulkCreate(req.body, { validate: true });
+  try {
+    let body = req.body;
 
-  res.status(201).json({
-    status: 'success',
-    results: data.length,
-    data,
-    message: 'המחלקה נוספה בהצלחה'
-  });
+    if (req.file) {
+      body.image = await uploadImage(req.file);
+    }
+
+    const data = await Department.create(body, { validate: true });
+
+    res.status(201).json({
+      status: 'success',
+      data,
+      message: 'המחלקה נוספה בהצלחה'
+    });
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
 });
 
 exports.updateDepartment = catchAsync(async (req, res, next) => {
-  const update = await Department.update(req.body, {
-    where: { id: req.params.id },
-    validate: true,
-    returning: true
-  });
+  console.log(req.body.image ?? 'no image');
+  try {
+    let body = req.body;
 
-  if (update[0] === 0) {
-    return next(new AppError('No department found with that ID', 404));
+    if (req.file) {
+      body.image = await uploadImage(req.file);
+    } else {
+      await removeImage(Department, req.params.id);
+    }
+
+    const data = await Department.update(body, {
+      where: { id: req.params.id },
+      validate: true,
+      returning: true
+    });
+
+    if (data[0] === 0) {
+      return next(new AppError('No department found with that ID', 404));
+    }
+
+    res.status(200).json({
+      status: 'success',
+      data: data[1][0],
+      message: 'עודכן בהצלחה'
+    });
+  } catch (error) {
+    res.status(400).send(error.message);
   }
-
-  const data = update[1];
-
-  res.status(200).json({
-    status: 'success',
-    data,
-    message: 'עודכן בהצלחה'
-  });
 });
 
 exports.bulkUpdateDepartment = catchAsync(async (req, res, next) => {
@@ -111,8 +138,9 @@ exports.bulkUpdateDepartment = catchAsync(async (req, res, next) => {
 });
 
 exports.deleteDepartment = catchAsync(async (req, res, next) => {
-  // delete one OR many records: .../route/2065 OR .../route/[2065, 2066, 2067]
-  const link = await Department.destroy({ where: { id: JSON.parse(req.params.id) } });
+  await removeImage(Department, req.params.id);
+
+  const department = await Department.destroy({ where: { id: JSON.parse(req.params.id) } });
 
   if (!department) {
     return next(new AppError('No department found with that ID', 404));
@@ -120,7 +148,7 @@ exports.deleteDepartment = catchAsync(async (req, res, next) => {
 
   res.status(202).json({
     status: 'success',
-    data: null,
+    data: department,
     message: 'המחלקה נמחקה בהצלחה'
   });
 });

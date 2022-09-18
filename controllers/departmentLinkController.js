@@ -40,11 +40,10 @@ exports.getDepartmentLink = catchAsync(async (req, res, next) => {
 });
 
 exports.createDepartmentLinks = catchAsync(async (req, res, next) => {
-  const data = await DepartmentLinks.bulkCreate(req.body, { validate: true });
+  const data = await DepartmentLinks.create(req.body, { validate: true });
 
   res.status(201).json({
     status: 'success',
-    results: data.length,
     data,
     message: 'הלינק נוסף בהצלחה'
   });

@@ -28,21 +28,6 @@ const User = sequelize.define(
         this.setDataValue('email', email.toLowerCase());
       }
     },
-    photo: {
-      type: DataTypes.STRING
-    },
-    role: {
-      type: DataTypes.ENUM('user', 'admin'),
-      defaultValue: 'user',
-      validate: {
-        isIn: {
-          args: [['user', 'admin']],
-          msg: 'User role must be user or admin'
-        }
-      }
-      // type: DataTypes.STRING,
-      // defaultValue: 'user',
-    },
     password: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -52,18 +37,21 @@ const User = sequelize.define(
           args: [8],
           msg: 'A user password must have at least 8 characters'
         }
-      }
+      },
+      select: false
     },
     passwordConfirm: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
         notNull: { msg: 'Please confirm your password' },
+
         isConfirmedPassword(passwordConfirm) {
           if (passwordConfirm === this.password) return true;
           throw new Error('Passwords are not the same!');
         }
-      }
+      },
+      select: false
     },
     passwordChangedAt: DataTypes.DATE,
     passwordResetToken: DataTypes.STRING,
@@ -76,10 +64,13 @@ User.prototype.isModified = function(fieldName) {
   return this._previousDataValues[fieldName] !== this.dataValues[fieldName];
 };
 
+// check if the inserted password in login is equal to saved password in db
+// returns true if equal and false if not
 User.prototype.correctPassword = async function(candidatePassword, userPassword) {
   return await bcrypt.compare(candidatePassword, userPassword);
 };
 
+//needs to be fixed
 User.prototype.changedPasswordAfter = function(JWTTimestamp) {
   if (this.passwordChangedAt) {
     const changedTimestamp = parseInt(this.passwordChangedAt.getTime() / 1000, 10);
@@ -90,6 +81,7 @@ User.prototype.changedPasswordAfter = function(JWTTimestamp) {
   return false;
 };
 
+//not in use
 User.prototype.createPasswordResetToken = function() {
   const resetToken = crypto.randomBytes(32).toString('hex');
 
@@ -105,47 +97,19 @@ User.prototype.createPasswordResetToken = function() {
   return resetToken;
 };
 
-User.prototype.hidePassword = function() {
-  this.password = null;
-  this.passwordConfirm = null;
-};
-// 2) Sequelize Hooks.
+// 2) Sequelize Hooks:
 
-User.afterFind(users => {
-  // dont send passwords on get requests
-  if (!Array.isArray(users)) return;
-
-  users.map(user => {
-    // delete user.dataValues.active;
-    delete user.dataValues.password;
-    delete user.dataValues.passwordConfirm;
-    return user;
-  });
-});
-
-User.afterValidate(async function(user) {
-  // Delete passwordConfirm field
-  user.passwordConfirm = '';
-});
-
+//function that encrypts password before it is saved to db (on signup)
 User.beforeSave(async function(user) {
   // Only run this function if password was actually modified
   if (!user.isModified('password')) return;
 
   // Hash the password with cost of 12
   user.password = await bcrypt.hash(user.password, 12);
-});
-
-User.beforeSave(async function(user) {
-  // Only run this function if password was actually modified and user is not new record
-  if (!user.isModified('password') || user.isNewRecord) return;
-
+  // Hide confirmPassword value
+  user.passwordConfirm = '';
+  // Update "password changed at" time
   user.passwordChangedAt = Date.now() - 1000;
-});
-
-User.afterSave(newUser => {
-  delete newUser.dataValues.password;
-  delete newUser.dataValues.passwordConfirm;
 });
 
 module.exports = User;
