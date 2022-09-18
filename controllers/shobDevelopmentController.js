@@ -5,6 +5,7 @@ const SingleFile = require('../models/singleFileModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const User = require('../models/userModel');
+const factory = require('./factoryFunctions');
 
 const removeImage = require('../middlewares/removeImage');
 const uploadImage = require('../middlewares/uploadImage');
@@ -38,25 +39,7 @@ exports.getShobDevelopment = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.createShobDevelopment = catchAsync(async (req, res, next) => {
-  try {
-    let body = req.body;
-
-    if (req.file) {
-      body.image = await uploadImage(req.file);
-    }
-
-    const data = await ShobDevelopments.create(body, { validate: true });
-
-    res.status(201).json({
-      status: 'success',
-      data,
-      message: 'פיתוח המעבדה נוסף בהצלחה'
-    });
-  } catch (error) {
-    res.status(400).send(error.message);
-  }
-});
+exports.createShobDevelopment = factory.createOne(ShobDevelopments, 'פיתוח המעבדה נוסף בהצלחה');
 
 exports.updateShobDevelopment = catchAsync(async (req, res, next) => {
   try {

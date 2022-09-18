@@ -3,6 +3,7 @@ const DepartmentLinks = require('../models/departmentLinkModel');
 const Departments = require('../models/departmentModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const factory = require('./factoryFunctions');
 
 exports.getAllDepartmentLinks = catchAsync(async (req, res, next) => {
   const { query } = new APIFeatures(req.query)
@@ -39,15 +40,7 @@ exports.getDepartmentLink = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.createDepartmentLinks = catchAsync(async (req, res, next) => {
-  const data = await DepartmentLinks.create(req.body, { validate: true });
-
-  res.status(201).json({
-    status: 'success',
-    data,
-    message: 'הלינק נוסף בהצלחה'
-  });
-});
+exports.createDepartmentLinks = factory.createOne(DepartmentLinks, 'הלינק נוסף בהצלחה');
 
 exports.updateDepartmentLink = catchAsync(async (req, res, next) => {
   const update = await DepartmentLinks.update(req.body, {

@@ -1,8 +1,8 @@
 const APIFeatures = require('../utils/apiFeatures');
-// const Links = require('../models/linkModel');
 const ReportUrl = require('../models/reportUrl');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const factory = require('./factoryFunctions');
 
 exports.getAllReportUrls = catchAsync(async (req, res, next) => {
   const { query } = new APIFeatures(req.query)
@@ -37,15 +37,7 @@ exports.getAllReportUrls = catchAsync(async (req, res, next) => {
 //   });
 // });
 
-exports.createReportUrl = catchAsync(async (req, res, next) => {
-  const data = await ReportUrl.create(req.body, { validate: true });
-
-  res.status(201).json({
-    status: 'success',
-    data,
-    message: 'הלינק נוסף בהצלחה'
-  });
-});
+exports.createReportUrl = factory.createOne(ReportUrl, 'הלינק נוסף בהצלחה');
 
 exports.updateReportUrl = catchAsync(async (req, res, next) => {
   const update = await ReportUrl.update(req.body, {

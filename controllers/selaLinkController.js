@@ -7,7 +7,7 @@ const AppError = require('../utils/appError');
 const removeImage = require('../middlewares/removeImage');
 const uploadImage = require('../middlewares/uploadImage');
 
-const factory = require('./factoryFunctions.js');
+const factory = require('./factoryFunctions');
 
 exports.getAllSelaLinks = catchAsync(async (req, res, next) => {
   const { query } = new APIFeatures(req.query)

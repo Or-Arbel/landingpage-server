@@ -3,6 +3,7 @@ const MainLinks = require('../models/mainLinkModel');
 const SingleFile = require('../models/singleFileModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const factory = require('./factoryFunctions');
 
 const removeImage = require('../middlewares/removeImage');
 const uploadImage = require('../middlewares/uploadImage');
@@ -40,24 +41,7 @@ exports.getMainLink = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.createMainLinks = catchAsync(async (req, res, next) => {
-  try {
-    let body = req.body;
-
-    if (req.file) {
-      body.image = await uploadImage(req.file);
-    }
-    const data = await MainLinks.create(body, { validate: true });
-
-    res.status(201).json({
-      status: 'success',
-      data,
-      message: 'הלינק נוסף בהצלחה'
-    });
-  } catch (error) {
-    res.status(400).send(error.message);
-  }
-});
+exports.createMainLinks = factory.createOne(MainLinks, 'הלינק נוסף בהצלחה');
 
 exports.updateMainLink = catchAsync(async (req, res, next) => {
   try {

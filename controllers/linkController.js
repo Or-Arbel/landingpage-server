@@ -2,6 +2,7 @@ const APIFeatures = require('../utils/apiFeatures');
 const Links = require('../models/linkModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const factory = require('./factoryFunctions');
 
 exports.getAllLinks = catchAsync(async (req, res, next) => {
   const { query } = new APIFeatures(req.query)
@@ -36,15 +37,7 @@ exports.getLink = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.createLinks = catchAsync(async (req, res, next) => {
-  const data = await Links.create(req.body, { validate: true });
-
-  res.status(201).json({
-    status: 'success',
-    data,
-    message: 'הלינק נוסף בהצלחה'
-  });
-});
+exports.createLinks = factory.createOne(Links, 'הלינק נוסף בהצלחה');
 
 exports.updateLink = catchAsync(async (req, res, next) => {
   const update = await Links.update(req.body, {

@@ -1,7 +1,6 @@
 const APIFeatures = require('../utils/apiFeatures');
 const Department = require('../models/departmentModel');
 const DepartmentLinks = require('../models/departmentLinkModel');
-const SingleFile = require('../models/singleFileModel');
 
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
@@ -9,7 +8,7 @@ const AppError = require('../utils/appError');
 const removeImage = require('../middlewares/removeImage');
 const uploadImage = require('../middlewares/uploadImage');
 
-const path = require('path');
+const factory = require('./factoryFunctions');
 
 exports.getAllDepartments = catchAsync(async (req, res, next) => {
   let { query } = new APIFeatures(req.query)
@@ -47,25 +46,7 @@ exports.getDepartment = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.createDepartment = catchAsync(async (req, res, next) => {
-  try {
-    let body = req.body;
-
-    if (req.file) {
-      body.image = await uploadImage(req.file);
-    }
-
-    const data = await Department.create(body, { validate: true });
-
-    res.status(201).json({
-      status: 'success',
-      data,
-      message: 'המחלקה נוספה בהצלחה'
-    });
-  } catch (error) {
-    res.status(400).send(error.message);
-  }
-});
+exports.createDepartment = factory.createOne(Department, 'המחלקה נוספה בהצלחה');
 
 exports.updateDepartment = catchAsync(async (req, res, next) => {
   console.log(req.body.image ?? 'no image');
