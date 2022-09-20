@@ -41,29 +41,31 @@ exports.getShobDevelopment = catchAsync(async (req, res, next) => {
 
 exports.createShobDevelopment = factory.createOne(ShobDevelopments, 'פיתוח המעבדה נוסף בהצלחה');
 
-exports.updateShobDevelopment = catchAsync(async (req, res, next) => {
-  try {
-    let body = req.body;
+// exports.updateShobDevelopment = catchAsync(async (req, res, next) => {
+//   try {
+//     let body = req.body;
 
-    if (req.file) {
-      body.image = await uploadImage(req.file);
-    } else {
-      await removeImage(ShobDevelopments, req.params.id);
-    }
+//     if (req.file) {
+//       body.image = await uploadImage(req.file);
+//     } else {
+//       await removeImage(ShobDevelopments, req.params.id);
+//     }
 
-    const data = await ShobDevelopments.update(body, { where: { id: req.params.id }, validate: true, returning: true });
-    if (data[0] === 0) {
-      return next(new AppError('No shob development found with that ID', 404));
-    }
+//     const data = await ShobDevelopments.update(body, { where: { id: req.params.id }, validate: true, returning: true });
+//     if (data[0] === 0) {
+//       return next(new AppError('No shob development found with that ID', 404));
+//     }
 
-    res.status(200).json({
-      status: 'success',
-      data: data[1][0]
-    });
-  } catch (error) {
-    res.status(400).send(error.message);
-  }
-});
+//     res.status(200).json({
+//       status: 'success',
+//       data: data[1][0]
+//     });
+//   } catch (error) {
+//     res.status(400).send(error.message);
+//   }
+// });
+
+exports.updateShobDevelopment = factory.updateOneById(ShobDevelopments, 'No shob development found with that ID');
 
 exports.bulkUpdateShobDevelopment = catchAsync(async (req, res, next) => {
   const { body } = req;

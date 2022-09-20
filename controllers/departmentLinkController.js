@@ -27,40 +27,11 @@ exports.getAllDepartmentLinks = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getDepartmentLink = catchAsync(async (req, res, next) => {
-  const data = await DepartmentLinks.findByPk(req.params.id);
-
-  if (!data) {
-    return next(new AppError('No department found with that ID', 404));
-  }
-
-  res.status(200).json({
-    status: 'success',
-    data
-  });
-});
+exports.getDepartmentLink = factory.getOneById(DepartmentLinks, 'לא נמצא לינק עבור הID שנמסר');
 
 exports.createDepartmentLinks = factory.createOne(DepartmentLinks, 'הלינק נוסף בהצלחה');
 
-exports.updateDepartmentLink = catchAsync(async (req, res, next) => {
-  const update = await DepartmentLinks.update(req.body, {
-    where: { id: req.params.id },
-    validate: true,
-    returning: true
-  });
-
-  if (update[0] === 0) {
-    return next(new AppError('No department link found with that ID', 404));
-  }
-
-  // console.log(update[1]);
-  const data = update[1][0];
-
-  res.status(200).json({
-    status: 'success',
-    data
-  });
-});
+exports.updateDepartmentLink = factory.updateOneById(DepartmentLinks, 'לא נמצא לינק עבור הID שנמסר');
 
 exports.bulkUpdateDepartmentLinks = catchAsync(async (req, res, next) => {
   const { body } = req;

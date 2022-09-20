@@ -28,47 +28,11 @@ exports.getAllMainLinks = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getMainLink = catchAsync(async (req, res, next) => {
-  const data = await MainLinks.findByPk(req.params.id);
-
-  if (!data) {
-    return next(new AppError(recordNotFoundMessage, 404));
-  }
-
-  res.status(200).json({
-    status: 'success',
-    data
-  });
-});
+exports.getMainLink = factory.getOneById(MainLinks, 'לא נמצא לינק עבור הID שנמסר');
 
 exports.createMainLinks = factory.createOne(MainLinks, 'הלינק נוסף בהצלחה');
 
-exports.updateMainLink = catchAsync(async (req, res, next) => {
-  try {
-    let body = req.body;
-    if (req.file) {
-      body.image = await uploadImage(req.file);
-    } else {
-      await removeImage(MainLinks, req.params.id);
-    }
-    const data = await MainLinks.update(body, {
-      where: { id: +req.params.id },
-      validate: true,
-      returning: true
-    });
-
-    if (data[0] === 0) {
-      return next(new AppError(recordNotFoundMessage, 404));
-    }
-
-    res.status(200).json({
-      status: 'success',
-      data: data[1][0].dataValues
-    });
-  } catch (error) {
-    res.status(400).send(error.message);
-  }
-});
+exports.updateMainLink = factory.updateOneById(MainLinks, 'לא נמצא לינק לעדכון');
 
 exports.bulkUpdateMainLink = catchAsync(async (req, res, next) => {
   const { body } = req;

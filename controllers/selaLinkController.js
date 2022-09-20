@@ -40,29 +40,7 @@ exports.getSelaLink = catchAsync(async (req, res, next) => {
 
 exports.createSelaLink = factory.createOne(SelaLinks, 'לינק למערכת סל"ע נוסף בהצלחה');
 
-exports.updateSelaLink = catchAsync(async (req, res, next) => {
-  try {
-    let body = req.body;
-
-    if (req.file) {
-      body.image = await uploadImage(req.file);
-    } else {
-      await removeImage(SelaLinks, req.params.id);
-    }
-
-    const data = await SelaLinks.update(body, { where: { id: req.params.id }, validate: true, returning: true });
-    if (data[0] === 0) {
-      return next(new AppError('No sela link found with that ID', 404));
-    }
-
-    res.status(200).json({
-      status: 'success',
-      data: data[1][0]
-    });
-  } catch (error) {
-    res.status(400).send(error.message);
-  }
-});
+exports.updateSelaLink = factory.updateOneById(SelaLinks, 'לא נמצא לינק עבור הID הזה');
 
 exports.bulkUpdateSelaLink = catchAsync(async (req, res, next) => {
   const { body } = req;

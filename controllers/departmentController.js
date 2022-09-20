@@ -33,51 +33,11 @@ exports.getAllDepartments = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getDepartment = catchAsync(async (req, res, next) => {
-  const data = await Department.findByPk(req.params.id);
-
-  if (!data) {
-    return next(new AppError('No department found with that ID', 404));
-  }
-
-  res.status(200).json({
-    status: 'success',
-    data
-  });
-});
+exports.getDepartment = factory.getOneById(Department, 'לא נמצאה מחלקה עבור הID שנמסר');
 
 exports.createDepartment = factory.createOne(Department, 'המחלקה נוספה בהצלחה');
 
-exports.updateDepartment = catchAsync(async (req, res, next) => {
-  console.log(req.body.image ?? 'no image');
-  try {
-    let body = req.body;
-
-    if (req.file) {
-      body.image = await uploadImage(req.file);
-    } else {
-      await removeImage(Department, req.params.id);
-    }
-
-    const data = await Department.update(body, {
-      where: { id: req.params.id },
-      validate: true,
-      returning: true
-    });
-
-    if (data[0] === 0) {
-      return next(new AppError('No department found with that ID', 404));
-    }
-
-    res.status(200).json({
-      status: 'success',
-      data: data[1][0],
-      message: 'עודכן בהצלחה'
-    });
-  } catch (error) {
-    res.status(400).send(error.message);
-  }
-});
+exports.updateDepartment = factory.updateOneById(Department, 'לא נמצאה מחלקה עבור הID שנמסר');
 
 exports.bulkUpdateDepartment = catchAsync(async (req, res, next) => {
   const { body } = req;
