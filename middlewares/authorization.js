@@ -23,7 +23,6 @@ module.exports = () => {
         }
 
         // No error, JWT is valid
-        // console.log(decoded);
 
         // check if there is user exists for this token
         const currentUser = await User.findByPk(decoded.id);
