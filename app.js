@@ -57,7 +57,9 @@ app.use('/api/sela', selaLinkRouter);
 app.use('/api/users', userRouter);
 
 app.use('/uploads', express.static('uploads'));
-app.use('/api/upload', imageUploadRoutes);
+
+//imageUpload routes
+//app.use('/api/upload', imageUploadRoutes);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

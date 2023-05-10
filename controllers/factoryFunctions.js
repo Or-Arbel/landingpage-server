@@ -68,7 +68,10 @@ exports.updateOneById = (Model, notFoundMessage) =>
 
       if (req.file) {
         body.image = await uploadImage(req.file);
-      } else {
+      }
+
+      if (!req.file && !req.body.image) {
+        // if user removed the image (if req.params.image === null)
         await removeImage(Model, req.params.id);
       }
 

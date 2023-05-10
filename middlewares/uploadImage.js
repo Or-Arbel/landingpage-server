@@ -7,10 +7,11 @@ const fileSizeFormatter = (bytes, decimal) => {
   const dm = decimal || 2;
   const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'YB', 'ZB'];
   const index = Math.floor(Math.log(bytes) / Math.log(1000));
-  return parseFloat((bytes / Math.pow(1000, index)).toFixed(dm)) + ' ' + sizes[index];
+  return `${parseFloat((bytes / 1000 ** index).toFixed(dm))} ${sizes[index]}`;
 };
 
 module.exports = uploadImage = async file => {
+  console.log('hello from upload image');
   const newImage = new SingleFile({
     fileName: file.originalname,
     filePath: file.path.replace('\\', '/'),

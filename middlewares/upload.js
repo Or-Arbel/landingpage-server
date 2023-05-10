@@ -1,5 +1,7 @@
 const multer = require('multer');
 
+console.log('upload middleware');
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads/'.replace('\\', '/'));
